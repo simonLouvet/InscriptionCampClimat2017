@@ -1,0 +1,23 @@
+{
+  "name": "InscriptionCampClimat2017",
+  "version": "0.1.0",
+  "description": "a rich autonomus web component to subscripe to activities of Camp Climat 2017",
+  "private": true,
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js"
+  },
+  "author": "Simon Louvet <simon.louvet.zen@gmail.com>",
+  "license": "GNUV3",
+  "dependencies": {
+    "body-parser": "latest",
+    "cors": "latest",
+    "express": "latest",
+    "http": "latest",
+    "jquery": "^3.2.1",
+    "riot": "^3.6.0",
+    "riotcontrol": "0.0.3",
+    "sheetrock": "^1.1.4",
+    "sift": "^3.3.11"
+  }
+}
