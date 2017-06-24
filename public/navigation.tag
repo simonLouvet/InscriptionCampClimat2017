@@ -77,10 +77,19 @@
       <div class="containerV">
         <div each={slots} class={booked:booked, disallow:disallow,slot:true}>
           <div class="containerH">
-            <div style="flex-basis:60px" >
+            <div style="flex-basis:60px">
               <input type="checkbox" onchange={changeSelect} if={L==undefined && !disallow && M==undefined} checked={checked}></input>
-              <div class="containerH" if={L==undefined && !disallow && M!=undefined}> <input type="radio" name="mand-{id}" value="true"  onchange={changeRadio} checked={checked==true}><span>oui</span></div>
-              <div class="containerH" if={L==undefined && !disallow && M!=undefined}> <input type="radio" name="mand-{id}" value="false" onchange={changeRadio} checked={checked==false}><span>non</span></div>
+              <div class="containerH" if={L==undefined && !disallow && M!=undefined}>
+                <input type="radio" name="mand-{id}" value="true" onchange={changeRadio} checked={checked==true}>
+                <span>oui</span>
+              </div>
+              <div class="containerH" if={L==undefined && !disallow && M!=undefined}>
+                <input type="radio" name="mand-{id}" value="false" onchange={changeRadio} checked={checked==false}>
+                <span>non</span>
+              </div>
+            </div>
+            <div>
+              <img width="20" src="./resources/moreInfo.png" onclick={moreInfoClick} class="button"></img>
             </div>
             <div style="flex-basis:80px">
               {D}
@@ -110,6 +119,9 @@
             <div each={mainSlots} class="colSpanRow">
               {weekDays[date.getDay()]} {date.getDate()} {months[date.getMonth()]} {D} à {E}
             </div </div>
+          </div>
+          <div if={moreInfo==true}>
+            {formation.F}
           </div>
         </div>
       </div>
@@ -164,11 +176,11 @@
     this.on('update', function () {
       setTimeout(function () {
         // console.log($(".datePicker")); var param = {   firstDay: 1,   altField: ".datePicker",   closeText: 'Fermer',   prevText: 'Précédent',   nextText: 'Suivant',   currentText: 'Aujourd\'hui',   monthNames: [     'Janvier',     'Février',     'Mars',
-        //  'Avril',     'Mai',     'Juin',     'Juillet',     'Août',     'Septembre',     'Octobre',     'Novembre',     'Décembre'   ],   monthNamesShort: [     'Janv.',     'Févr.',     'Mars',     'Avril',     'Mai',     'Juin',     'Juil.', 'Août',
+        // 'Avril',     'Mai',     'Juin',     'Juillet',     'Août',     'Septembre',     'Octobre',     'Novembre',     'Décembre'   ],   monthNamesShort: [     'Janv.',     'Févr.',     'Mars',     'Avril',     'Mai',     'Juin',     'Juil.', 'Août',
         // 'Sept.',     'Oct.',     'Nov.',     'Déc.'   ],   dayNames: [     'Dimanche',     'Lundi',     'Mardi',     'Mercredi',     'Jeudi',     'Vendredi',     'Samedi'   ],   dayNamesShort: [     'Dim.',     'Lun.',     'Mar.',     'Mer.',    'Jeu.',
-        //   'Ven.',     'Sam.'   ],   dayNamesMin: [     'D',     'L',     'M',     'M',     'J',     'V',     'S'   ],   weekHeader: 'Sem.',   dateFormat: 'dd/mm/yy',   onSelect: function (str, inst) {     var objectDate = new Date(inst.selectedYear,
+        // 'Ven.',     'Sam.'   ],   dayNamesMin: [     'D',     'L',     'M',     'M',     'J',     'V',     'S'   ],   weekHeader: 'Sem.',   dateFormat: 'dd/mm/yy',   onSelect: function (str, inst) {     var objectDate = new Date(inst.selectedYear,
         // inst.selectedMonth, inst.selectedDay);     if (inst.id == "dateDebut") {       //  RiotControl.trigger('dateDebut_change', objectDate,str);     }     if (inst.id == "dateFin") {       //RiotControl.trigger('dateFin_change', objectDate,str);     }
-        //  }.bind(this) };
+        // }.bind(this) };
         $("#dateDebut").datepicker({
           firstDay: 1,
           altField: ".datePicker",
@@ -342,6 +354,15 @@
       RiotControl.trigger('switch_select', e.item, e.target.checked);
     }
 
+    changeRadio(e) {
+      if(e.target.checked && e.target.value=='true'){
+        RiotControl.trigger('switch_select', e.item, true);
+      }
+      if(e.target.checked && e.target.value=='false'){
+        RiotControl.trigger('switch_select', e.item, false);
+      }
+    }
+
     persistSlots(e) {
       RiotControl.trigger('persist_slots');
     }
@@ -352,6 +373,11 @@
 
     mailValidation(e) {
       RiotControl.trigger('email_change', this.email);
+    }
+
+    moreInfoClick(e) {
+      //console.log('ALLO');
+      RiotControl.trigger('more_info', e.item);
     }
   </script>
   <style>

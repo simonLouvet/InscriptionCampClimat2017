@@ -209,7 +209,7 @@ function MainStore() {
     this.trigger('days_changed', this.days);
   });
 
-  this.resctrictDate = function(dateDebut, dateFin) {
+  this.resctrictDate = function() {
     return sift({
       $and: [{
           date: {
@@ -225,13 +225,27 @@ function MainStore() {
     }, this.days)
   }
 
+  this.on('more_info', function(slot) {
+    sift({id:slot.id},this.slots).forEach(record=>record.moreInfo=!record.moreInfo);
+    this.trigger(this.resctrictDate());
+  });
 
   this.on('slots_init', function() {
-    this.makeRequest("11iOoq00Hy8vMHDksubOUUDXvgf5YD1qz_-cUJlWDScE#gid=1048305501", "select A,B,C,D,E,F,G,L,H,I,J,K,M order by C asc, H asc", 0).then(sheet => {
-      this.slots = sheet.data;
+    var slotRequest = this.makeRequest("11iOoq00Hy8vMHDksubOUUDXvgf5YD1qz_-cUJlWDScE#gid=1048305501", "select A,B,C,D,E,F,G,L,H,I,J,K,M order by C asc, H asc", 0);
+    var formationRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=0", "select A,B,C,D,E,F,G,H,I,J,K,L,M,O,P,Q", 0);
+    var lieuRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=453023377", "select A,F,I", 0);
+    Promise.all([slotRequest, formationRequest, lieuRequest]).then(multiData => {
+      this.slots = multiData[0].data;
+      console.log(multiData[1],multiData[2]);
       var id = 1;
       for (slot of this.slots) {
         slot.id = id;
+        slot.formation = sift({
+          A: slot.A
+        }, multiData[1].data)[0];
+        slot.lieu = sift({
+          A: slot.F
+        }, multiData[2].data)[0];
         id++;
       }
       var slotsForRequest = this.slots.slice(0);
@@ -289,7 +303,70 @@ function MainStore() {
         }
       }
       this.trigger('days_changed', this.resctrictDate(this.days));
-    })
+    });
+    //this.makeRequest("11iOoq00Hy8vMHDksubOUUDXvgf5YD1qz_-cUJlWDScE#gid=1048305501", "select A,B,C,D,E,F,G,L,H,I,J,K,M order by C asc, H asc", 0).then(sheet => {
+    // this.slots = sheet.data;
+    // var id = 1;
+    // for (slot of this.slots) {
+    //   slot.id = id;
+    //   id++;
+    // }
+    // var slotsForRequest = this.slots.slice(0);
+    // //console.log(sift);
+    // this.days = [];
+    // for (slot of this.slots) {
+    //   //slot.checked = false;
+    //   slot.disallow = false;
+    //   slot.booked = false;
+    //   slot.date = eval('new ' + slot.C);
+    //   slot.dateDisplay = ("0" + slot.date.getDate()).slice(-2) + '/' + ("0" + (slot.date.getMonth() + 1)).slice(-2) + '/' + slot.date.getFullYear();
+    //   slot.dayTimeDebut = slot.H * 60 + slot.I;
+    //   slot.dayTimeFin = slot.J * 60 + slot.K;
+    //   if (slot.L != undefined) {
+    //     slot.mainSlots = sift({
+    //       B: slot.B,
+    //       D: {
+    //         $ne: slot.D
+    //       },
+    //       L: {
+    //         $exists: false
+    //       }
+    //     }, slotsForRequest)
+    //   } else {
+    //     slot.otherSlots = sift({
+    //       B: slot.B,
+    //       D: {
+    //         $ne: slot.D
+    //       },
+    //       L: {
+    //         $exists: true
+    //       }
+    //     }, slotsForRequest);
+    //   }
+    // }
+    // for (slot of this.slots) {
+    //   var currentDay = {};
+    //   var dayExist = false;
+    //   for (day of this.days) {
+    //     //console.log(day.date,slot.date);
+    //     if (day.date.getTime() == slot.date.getTime()) {
+    //       dayExist = true;
+    //       day.slots.push(slot);
+    //       //currentDay= day;
+    //       break;
+    //     }
+    //   }
+    //   if (!dayExist) {
+    //     //console.log(slot.date);
+    //     this.days.push({
+    //       date: slot.date,
+    //       slots: [slot]
+    //     });
+    //     //currentDay=days[days.length-1];
+    //   }
+    // }
+    // this.trigger('days_changed', this.resctrictDate(this.days));
+    //})
   });
 
 }
