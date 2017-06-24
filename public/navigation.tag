@@ -4,7 +4,7 @@
     <div class="containerH">
       <div style="flex-basis:25%">
         <div>
-          <label>email</label>
+          <label>Saisis l'adresse mail avec laquelle tu t'es inscrit-e au Camp Climat :</label>
         </div>
         <div>
           <input type="texte" onchange={emailchange} style="width:100%"></input>
@@ -13,24 +13,24 @@
 
       <div style="flex-basis:70%" if={notConnected} class="notConnected">
         <span>
-          Ce mail ne correspond à aucun mail fournis par les personnes qui se sont inscrites au camp climat. Vous ne pouvez donc pas vous inscrire aux activités
+          Aucune inscription au Camp Climat n'a été effectuée avec cette adresse mail ; tu ne peux donc pas t'inscrire aux activités, désolé !
         </span>
       </div>
     </div>
     <div style="flex-grow:1;justify-content:center" class="button containerH" onclick={mailValidation} if={days==undefined}>
       <div class="containerV">
         <div>
-          vérifier que je suis bien inscrit au camp climat
+          vérifier que tu es bien inscrit-e au Camp Climat
         </div>
         <div>
-          et commencer mes inscriptions aux activités
+          et commencer tes inscriptions aux activités
         </div>
       </div>
     </div>
     <div if={days!=undefined} class="containerH">
       <div class="containerV">
         <div >
-          <label>confirmer votre date date d'arrivée</label>
+          <label>La date d'arrivée que tu as indiquée (tu peux la mettre à jour) :</label>
         </div>
         <div>
           <input type="text" value={userConnected.dateDebutInputValue} name="dateDebut" id="dateDebut"></input>
@@ -40,7 +40,7 @@
     <div if={days!=undefined} class="containerH">
       <div class="containerV">
         <div >
-          <label>confirmer votre date date de départ</label>
+          <label>La date de départ que tu as indiquée (tu peux la mettre à jour) :</label>
         </div>
         <div>
           <input type="text" value={userConnected.dateFinInputValue} name="dateFin" id="dateFin"></input>
@@ -49,8 +49,8 @@
     </div>
     <div if={days!=undefined} class="containerH">
       <div class="containerV">
-        <div >
-          <label>Vous avez déjà fourni les autres informations dans le formulaire d'inscription mais vous pouvez nous laisser un commentaire ou des informations utiles</label>
+        <div>
+          <label>S'il y a des changements dans les informations que tu nous as données dans le premier formulaire, merci de nous les indiquer ici :</label>
         </div>
         <div>
           <textarea style="width:100%"></textarea>
@@ -59,7 +59,7 @@
     </div>
     <!--<div if={days!=undefined}>
       <div>
-        <label>Pour faciliter la saisie de l'inscription, vous pouvez preselectionner les cursus qui vous interessent. Les formations de ces cursus vous seront indiqués</label>
+        <label>Pour faciliter la saisie de l'inscription, tu peux sélectionner les cursus qui t'intéressent. Les formations de ces cursus te seront signalées</label>
       </div>
       <div>
         <H1>EN TRAVAUX</H1>
@@ -160,7 +160,7 @@
       'Mai',
       'Juin',
       'Juillet',
-      'Aout',
+      'août',
       'Septembre',
       'Octobre',
       'Novembre',
