@@ -10,5 +10,5 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
   console.log(this.address());
 })
 
-app.use(express.static('public'));
-app.use(express.static('node_modules'));
+app.use('/public',express.static('public'));
+app.use('/node_modules',express.static('node_modules'));
