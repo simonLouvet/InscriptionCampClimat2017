@@ -89,7 +89,7 @@
               </div>
             </div>
             <div>
-              <img width="20" src="./resources/moreInfo.png" onclick={moreInfoClick} class="button"></img>
+              <img width="20" src="./resources/moreInfo.png" onclick={moreInfoClick} class="moreInfo"></img>
             </div>
             <div style="flex-basis:80px">
               {D}
@@ -100,24 +100,37 @@
             <div style="flex-basis:300px">
               {G}
             </div>
+            <div style="flex-basis:80x">
+              {reservation}/{jauge}
+            </div>
+          </div>
+          <div class="containerH">
             <div>
               {A}
             </div>
           </div>
           <div class="containerH" if={otherSlots!=undefined && otherSlots.length>0}>
             <div>
-              cette formation bloque ces autres créneaux :
+              Cette formation bloque ces autres créneaux :
             </div>
             <div each={otherSlots} class="colSpanRow">
               {weekDays[date.getDay()]} {date.getDate()} {months[date.getMonth()]} {D} à {E}
-            </div </div>
+            </div>
           </div>
           <div class="containerH" if={mainSlots!=undefined && mainSlots.length>0}>
             <div>
-              pour s'inscrire à cette formation, vous devez vous inscrire le :
+              Pour s'inscrire à cette formation, vous devez vous inscrire le :
             </div>
             <div each={mainSlots} class="colSpanRow">
               {weekDays[date.getDay()]} {date.getDate()} {months[date.getMonth()]} {D} à {E}
+            </div </div>
+          </div>
+          <div class="containerH" if={dependencies!=undefined && dependencies.length>0}>
+            <div>
+              Vous ne pouvez vous inscrire à catte formation qu'à condition de vous être aussi inscrit à :
+            </div>
+            <div each={dependencies} class="colSpanRow">
+              {B}
             </div </div>
           </div>
           <div if={moreInfo==true}>
@@ -128,7 +141,27 @@
 
     </div>
   </div>
-  <div class="containerH" style="justify-content:center" if={days!=undefined && !inscriptionDone}>
+  <div class="containerV" each={dependencies}>
+    <div>
+      Vous ne pouvez vous inscrire à catte formation qu'à condition de vous être aussi inscrit à :
+    </div>
+    <div each={dependencies} class="colSpanRow">
+      {B}
+    </div>
+  </div>
+
+  <div each={blockingMessages} class="cantainerH">
+    <div class="containerV">
+      <div if={message=='mandatory'}>
+        Vous devez obligatoirement répondre concernant votre présence à la formation  {data.formation.A} qui se déroule le {data.dateDisplay}
+      </div>
+      <div if={message=='domaine'}>
+        Vous devez obligatoirement vous inscrire à au moins {data.C} formation du domaine {data.A}
+      </div>
+    </div>
+  </div>
+
+  <div class="containerH" style="justify-content:center" if={days!=undefined && !inscriptionDone && blockingMessages.length==0}>
     <div style="flex-basis:60%;justify-content:center" class="button containerH" onclick={persistSlots}>
       <div >
         valider
@@ -143,6 +176,7 @@
     </div>
   </div>
   <script>
+    //this.email="simon.louvet.zen@gmail.com";
     this.weekDays = [
       'dimanche',
       'lundi',
@@ -169,6 +203,8 @@
 
     this.inscriptioDone = false;
     this.notConnected = false;
+    this.warningMessages = [];
+    this.blockingMessages= [];
 
     this.on('mount', function () {
       //RiotControl.trigger('slots_init'); this.update();
@@ -332,7 +368,15 @@
       console.log(data);
       this.days = data;
       this.update();
-    }.bind(this))
+    }.bind(this));
+
+    RiotControl.on('messages_changed', function ( warningMessages, blockingMessages) {
+      //console.log(data);
+      this.warningMessages = warningMessages;
+      this.blockingMessages=blockingMessages;
+      this.update();
+    }.bind(this));
+
 
     RiotControl.on('user_connected', function (data) {
       this.notConnected = false;
@@ -421,8 +465,13 @@
       border-style: solid;
       border-width: 5px;
     }
+
     .button:hover {
       border-color: DarkGreen;
+    }
+
+    .moreInfo{
+      cursor: pointer;
     }
 
     .booking {
