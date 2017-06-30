@@ -164,7 +164,7 @@
       Vous devez obligatoirement répondre concernant votre présence à la formation {data.formation.A} qui se déroule le {data.dateDisplay}
     </div>
     <div if={message=='domaine' }>
-      Vous devez obligatoirement vous inscrire à au moins {data.C} formation du domaine {data.A}
+      Vous devez obligatoirement vous inscrire à au moins {data.minInscription.C} formation du domaine {data.domaine.A}
     </div>
   </div>
 </div>

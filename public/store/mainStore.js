@@ -244,7 +244,7 @@ function MainStore() {
   });
 
   this.on('comment_change', function(value) {
-    this.user.comment=value;
+    this.user.comment = value;
   });
 
   this.checkForMessage = function() {
@@ -254,21 +254,57 @@ function MainStore() {
     console.log(this.domaines);
 
     this.domaines.forEach(domaine => {
-      if (domaine.C > 0) {
-        var minBookslots = sift({
+      var minBookslots = sift({
+        $and: [{
+          G: domaine.A
+        }, {
+          booked: true
+        }]
+      }, this.slots);
+      //if (domaine.C > 0) {
+      //var nbDay = (this.user.dateFin - this.user.dateDebut) / (60 * 60 * 24 * 1000);
+      var nbDay=this.resctrictDays.length;
+      console.log(nbDay,domaine.minInscriptions);
+      if (domaine.minInscriptions.length > 0) {
+        minInscriptions = sift({
           $and: [{
-            G:domaine.A
-          }, {
-            booked:true
-          }]
-        }, this.slots);
-        if(minBookslots.length<domaine.C){
+              minDay: {
+                $lte: nbDay
+              }
+            },
+            {
+              $or: [{
+                maxDay: {
+                  $gte: nbDay
+                }
+              }, {
+                maxDay: {
+                  $exists: false
+                }
+              }]
+            }
+          ]
+        }, domaine.minInscriptions);
+        console.log(domaine,minInscriptions,minBookslots.length);
+        if(minInscriptions[0]!=undefined && minInscriptions[0].C>minBookslots.length){
           this.blockingMessages.push({
             message: 'domaine',
-            data: domaine
+            data: {
+              domaine: domaine,
+              minInscription: minInscriptions[0]
+            }
           });
         }
+
+
       }
+      // if(minBookslots.length<domaine.C){
+      //   this.blockingMessages.push({
+      //     message: 'domaine',
+      //     data: domaine
+      //   });
+      // }
+      //  }
     })
 
     var mandatoryNotComplete = sift({
@@ -413,11 +449,11 @@ function MainStore() {
           }
         }
       ]
-    }, this.slots).forEach(slot=>{
-        slot.booked=undefined;
-        slot.checked=false;
+    }, this.slots).forEach(slot => {
+      slot.booked = undefined;
+      slot.checked = false;
     });
-    return sift({
+    this.resctrictDays= sift({
       $and: [{
           date: {
             $gte: this.user.dateDebut
@@ -429,14 +465,15 @@ function MainStore() {
           }
         }
       ]
-    }, this.days)
+    }, this.days);
+    return this.resctrictDays;
   }
 
   this.on('more_info', function(slot) {
     sift({
       id: slot.id
     }, this.slots).forEach(record => record.moreInfo = !record.moreInfo);
-    this.trigger('days_changed',this.restrictDate());
+    this.trigger('days_changed', this.restrictDate());
   });
 
   this.on('slots_init', function() {
@@ -446,9 +483,24 @@ function MainStore() {
     var bookingRequest = this.makeRequestMlab('inscriptionplage', 'GET');
     var dependenciesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=507094044", "select A,B", 0);
     var domainesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=1820632004", "select A,B,C", 0);
+    var minInscriptionRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=108206282", "select A,B,C order by B asc", 0);
 
-    Promise.all([slotRequest, formationRequest, lieuRequest, bookingRequest, dependenciesRequest, domainesRequest]).then(multiData => {
+    Promise.all([slotRequest, formationRequest, lieuRequest, bookingRequest, dependenciesRequest, domainesRequest, minInscriptionRequest]).then(multiData => {
       this.domaines = multiData[5].data;
+      this.domaines.forEach(domaine => {
+        var minInscriptions = sift({
+          A: domaine.A
+        }, multiData[6].data);
+        var prevMinInsc;
+        for (minInscription of minInscriptions) {
+          if (prevMinInsc != undefined) {
+            prevMinInsc.maxDay = minInscription.B - 1;
+          }
+          minInscription.minDay = minInscription.B;
+          prevMinInsc = minInscription;
+        }
+        domaine.minInscriptions = minInscriptions;
+      });
       this.slots = multiData[0].data;
       console.log(multiData);
       var id = 1;
@@ -511,9 +563,9 @@ function MainStore() {
         }, multiData[3]).length;
         if (slot.reservation >= slot.jauge) {
           slot.disallow = true;
-          slot.full=true;
-        }else{
-          slot.full=false;
+          slot.full = true;
+        } else {
+          slot.full = false;
         }
       }
 
