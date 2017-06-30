@@ -241,9 +241,10 @@ function MainStore() {
     });
     this.trigger('days_changed', this.restrictDate(this.days));
     this.checkForMessage();
+  });
 
-
-
+  this.on('comment_change', function(value) {
+    this.user.comment=value;
   });
 
   this.checkForMessage = function() {
@@ -400,6 +401,22 @@ function MainStore() {
 
 
   this.restrictDate = function() {
+    sift({
+      $or: [{
+          date: {
+            $lt: this.user.dateDebut
+          }
+        },
+        {
+          date: {
+            $gt: this.user.dateFin
+          }
+        }
+      ]
+    }, this.slots).forEach(slot=>{
+        slot.booked=undefined;
+        slot.checked=false;
+    });
     return sift({
       $and: [{
           date: {
@@ -419,7 +436,7 @@ function MainStore() {
     sift({
       id: slot.id
     }, this.slots).forEach(record => record.moreInfo = !record.moreInfo);
-    this.trigger(this.restrictDate());
+    this.trigger('days_changed',this.restrictDate());
   });
 
   this.on('slots_init', function() {
@@ -494,6 +511,9 @@ function MainStore() {
         }, multiData[3]).length;
         if (slot.reservation >= slot.jauge) {
           slot.disallow = true;
+          slot.full=true;
+        }else{
+          slot.full=false;
         }
       }
 

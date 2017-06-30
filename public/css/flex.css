@@ -9,12 +9,12 @@
   justify-content: left;
   flex-wrap: wrap;
   align-items : stretch;
-  overflow-y: hidden;
+  /*overflow-y: hidden;*/
 
 }
 .containerV
 {
   display: flex;
   flex-direction: column;
-  /*overflow-y: auto;*/
+  overflow-y: auto;
 }
