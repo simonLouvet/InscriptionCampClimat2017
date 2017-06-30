@@ -24,6 +24,11 @@
           Aucune inscription au Camp Climat n'a été effectuée avec cette adresse mail ; tu ne peux donc pas t'inscrire aux activités, désolé !
         </div>
       </div>
+      <div if={userConnected!=undefined && userConnected.overwrite} class=containerH style="flex-basis:30%;">
+        <div class="containerH" style="justify-content:center;">
+          Tu as déjà renseigné ce formulaire. Les informations déjà fournies ont été reprises. La validation replacera les informations existantes.
+        </div>
+      </div>
     </div>
 
     <div if={days!=undefined} class="containerH">
@@ -52,7 +57,7 @@
           <label>S'il y a des changements dans les informations que tu nous as données dans le premier formulaire, merci de nous les indiquer ici :</label>
         </div>
         <div>
-          <textarea style="width:100%" onchange={commentChange}></textarea>
+          <textarea style="width:100%" onchange={commentChange}>{userConnected.comment}</textarea>
         </div>
       </div>
     </div>
@@ -157,17 +162,22 @@
     </div>
   </div>
 </div>
-
-<div each={blockingMessages} class="containerH notConnected">
+<div each={warningMessages} class="containerH notConnected" style="background-color:Orange">
   <div class="containerV">
-    <div if={message=='mandatory' }>
-      Vous devez obligatoirement répondre concernant votre présence à la formation {data.formation.A} qui se déroule le {data.dateDisplay}
-    </div>
     <div if={message=='domaine' }>
-      Vous devez obligatoirement vous inscrire à au moins {data.minInscription.C} formation du domaine {data.domaine.A}
+      Nous vous invitons à vous inscrire à au moins {data.minInscription.C} activité{data.minInscription.C>1?'s':''} du domaine {data.domaine.A}
     </div>
   </div>
 </div>
+<div each={blockingMessages} class="containerH notConnected" >
+  <div class="containerV">
+    <div if={message=='mandatory' }>
+      Vous devez obligatoirement répondre concernant votre présence à l'activité {data.formation.A} qui se déroule le {data.dateDisplay}
+    </div>
+
+  </div>
+</div>
+
 
 <div class="containerH" style="justify-content:center" if={days!=undefined && !inscriptionDone && blockingMessages.length==0}>
   <div style="flex-basis:60%;justify-content:center" class="button containerH" onclick={persistSlots}>
@@ -185,7 +195,7 @@
 </div>
 </div>
 <script>
-this.email = "simon.louvet.zen@gmail.com";
+//this.email = "simon.louvet.zen@gmail.com";
 this.weekDays = [
   'dimanche',
   'lundi',

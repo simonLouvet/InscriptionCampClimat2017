@@ -263,8 +263,8 @@ function MainStore() {
       }, this.slots);
       //if (domaine.C > 0) {
       //var nbDay = (this.user.dateFin - this.user.dateDebut) / (60 * 60 * 24 * 1000);
-      var nbDay=this.resctrictDays.length;
-      console.log(nbDay,domaine.minInscriptions);
+      var nbDay = this.resctrictDays.length;
+      console.log(nbDay, domaine.minInscriptions);
       if (domaine.minInscriptions.length > 0) {
         minInscriptions = sift({
           $and: [{
@@ -285,9 +285,9 @@ function MainStore() {
             }
           ]
         }, domaine.minInscriptions);
-        console.log(domaine,minInscriptions,minBookslots.length);
-        if(minInscriptions[0]!=undefined && minInscriptions[0].C>minBookslots.length){
-          this.blockingMessages.push({
+        console.log(domaine, minInscriptions, minBookslots.length);
+        if (minInscriptions[0] != undefined && minInscriptions[0].C > minBookslots.length) {
+          this.warningMessages.push({
             message: 'domaine',
             data: {
               domaine: domaine,
@@ -359,15 +359,37 @@ function MainStore() {
 
 
   this.on('email_change', function(email) {
-    this.makeRequest("1aJXvBugaH0ejrPaKQcEX1YeEW8hCrM8ctEeuwqEPNJs#gid=2008365008", "select B,C,D,J,L", 0).then(sheet => {
+    var oldUserRequest = this.makeRequestMlab('inscriptionpersonne', 'GET', {
+      q: {
+        D: email
+      }
+    });
+    var initialUserBooking = this.makeRequest("1aJXvBugaH0ejrPaKQcEX1YeEW8hCrM8ctEeuwqEPNJs#gid=2008365008", "select B,C,D,J,L", 0);
+    Promise.all([initialUserBooking, oldUserRequest]).then(multiData => {
+      console.log(multiData);
       var userFinded = sift({
         D: email
-      }, sheet.data);
+      }, multiData[0].data);
+
+      this.oldUser = multiData[1][0];
+
       if (userFinded.length > 0) {
         this.user = userFinded[0];
-        this.user.dateDebut = eval('new ' + this.user.J);
+        if (this.oldUser != undefined) {
+          this.user.dateDebut = new Date(this.oldUser.dateDebut);
+        } else {
+          this.user.dateDebut = eval('new ' + this.user.J);
+        }
         this.user.dateDebutInputValue = ("0" + this.user.dateDebut.getDate()).slice(-2) + '/' + ("0" + (this.user.dateDebut.getMonth() + 1)).slice(-2) + '/' + this.user.dateDebut.getFullYear();
-        this.user.dateFin = eval('new ' + this.user.L);
+        if (this.oldUser != undefined) {
+          this.user.dateFin = new Date(this.oldUser.dateFin);
+        } else {
+          this.user.dateFin = eval('new ' + this.user.L);
+        }
+        if (this.oldUser != undefined) {
+          this.user.comment = this.oldUser.comment;
+        }
+
         this.user.dateFinInputValue = ("0" + this.user.dateFin.getDate()).slice(-2) + '/' + ("0" + (this.user.dateFin.getMonth() + 1)).slice(-2) + '/' + this.user.dateFin.getFullYear();
         console.log(this.user);
         this.trigger('user_connected', this.user);
@@ -375,8 +397,8 @@ function MainStore() {
       } else {
         this.trigger('user_not_connected');
       }
-
     });
+
   });
 
   this.on('dateDebut_change', function(date, str) {
@@ -398,10 +420,20 @@ function MainStore() {
   this.on('persist_slots', function() {
     var exportData = [];
     sift({
-      booked: true
+      $or: [{
+          checked: {
+            $exists: true
+          }
+        },
+        {
+          booked: true
+        }
+      ]
     }, this.slots).forEach(slot => {
       exportData.push({
         horadateur: new Date(),
+        checked: slot.checked,
+        booked: slot.booked,
         email: this.user.D,
         formation: slot.A,
         session: slot.B,
@@ -413,6 +445,10 @@ function MainStore() {
     });
 
     this.user.horadateur = new Date();
+
+
+
+
     $.ajax({
       url: "https://api.mlab.com/api/1/databases/campclimat2017/collections/inscriptionpersonne?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI",
       data: JSON.stringify(this.user),
@@ -425,12 +461,24 @@ function MainStore() {
         type: "POST",
         contentType: "application/json"
       }).done(function(data) {
-        //console.log(data);
+        this.oldBookings.forEach(oldBooking => {
+          $.ajax({
+            url: "https://api.mlab.com/api/1/databases/campclimat2017/collections/inscriptionplage/" + oldBooking._id.$oid + "?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI",
+            type: "DELETE",
+            contentType: "application/json"
+          }).done(function(data) {});
+        });
+        if(this.oldUser!=undefined){
+          $.ajax({
+            url: "https://api.mlab.com/api/1/databases/campclimat2017/collections/inscriptionpersonne/" + this.oldUser._id.$oid + "?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI",
+            type: "DELETE",
+            contentType: "application/json"
+          }).done(function(data) {});
+        }
+
         this.trigger('inscription_done');
       }.bind(this));
     }.bind(this));
-
-
 
   });
 
@@ -451,9 +499,9 @@ function MainStore() {
       ]
     }, this.slots).forEach(slot => {
       slot.booked = undefined;
-      slot.checked = false;
+      slot.checked = undefined;
     });
-    this.resctrictDays= sift({
+    this.resctrictDays = sift({
       $and: [{
           date: {
             $gte: this.user.dateDebut
@@ -590,6 +638,34 @@ function MainStore() {
           //currentDay=days[days.length-1];
         }
       }
+      this.oldBookings = multiData[3];
+      var bookingsForUser = sift({
+        $and: [{
+          email: this.user.D
+        }, {
+          checked: {
+            $exists: true
+          }
+        }]
+      }, multiData[3]);
+      if (bookingsForUser.length > 0) {
+        this.user.overwrite = true;
+      }
+      bookingsForUser.forEach(booking => {
+        var slot = sift({
+          $and: [{
+            mainSlots: {
+              $exists: false
+            }
+          }, {
+            B: booking.session
+          }]
+        }, this.slots);
+        if (slot.length > 0) {
+          this.trigger('switch_select', slot[0], booking.checked);
+        }
+
+      });
       this.trigger('days_changed', this.restrictDate(this.days));
       this.checkForMessage();
     });
