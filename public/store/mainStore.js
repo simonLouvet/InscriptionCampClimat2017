@@ -532,8 +532,14 @@ function MainStore() {
     var dependenciesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=507094044", "select A,B", 0);
     var domainesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=1820632004", "select A,B,C", 0);
     var minInscriptionRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=108206282", "select A,B,C order by B asc", 0);
+    var cursusRequest=this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=1179905021", "select A,B", 0);
+    var cursusFormationRequest=this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=834841764", "select A,B", 0);
 
-    Promise.all([slotRequest, formationRequest, lieuRequest, bookingRequest, dependenciesRequest, domainesRequest, minInscriptionRequest]).then(multiData => {
+    Promise.all([slotRequest, formationRequest, lieuRequest, bookingRequest, dependenciesRequest, domainesRequest, minInscriptionRequest,cursusRequest,cursusFormationRequest]).then(multiData => {
+
+      this.cursus = multiData[7];
+      this.trigger('cursus_changed',this.cursus);
+
       this.domaines = multiData[5].data;
       this.domaines.forEach(domaine => {
         var minInscriptions = sift({
@@ -566,6 +572,9 @@ function MainStore() {
         slot.sucessors = sift({
           B: slot.A
         }, multiData[4].data);
+        slot.curus=sift({
+          A: slot.A
+        }, multiData[8].data)
         //console.log(slot.dependances);
 
         id++;
