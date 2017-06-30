@@ -26,7 +26,7 @@
       </div>
       <div if={userConnected!=undefined && userConnected.overwrite} class=containerH style="flex-basis:30%;">
         <div class="containerH" style="justify-content:center;">
-          Tu as déjà renseigné ce formulaire. Les informations déjà fournies ont été reprises. La validation replacera les informations existantes.
+          Tu as déjà renseigné ce formulaire, tes informations sont reprises ci-dessous. Tu peux les modifier et valider à nouveau.
         </div>
       </div>
     </div>
@@ -127,7 +127,7 @@
 
           <div class="containerH" if={otherSlots!=undefined && otherSlots.length>0}>
             <div>
-              Cette formation bloque ces autres créneaux :
+              Cette formation se poursuit obligatoirement sur ces autres créneaux :
             </div>
             <div each={otherSlots} class="colSpanRow">
               {weekDays[date.getDay()]} {date.getDate()} {months[date.getMonth()]} {D} à {E}
@@ -135,7 +135,7 @@
           </div>
           <div class="containerH" if={mainSlots!=undefined && mainSlots.length>0}>
             <div>
-              Pour s'inscrire à cette formation, vous devez vous inscrire le :
+              Pour participer à cette formation, tu dois d'abord t'inscrire le :
             </div>
             <div each={mainSlots} class="colSpanRow">
               {weekDays[date.getDay()]} {date.getDate()} {months[date.getMonth()]} {D} à {E}
@@ -144,7 +144,7 @@
 
           <div class="containerH" if={dependencies!=undefined && dependencies.length>0}>
             <div>
-              Vous ne pouvez vous inscrire à cette formation qu' à condition de vous être aussi inscrit à :
+              Tu ne peux t'inscrire à cette formation qu'à condition de t'inscrire d'abord à :
             </div>
             <div each={dependencies} class="colSpanRow">
               <span>{B}</span>
@@ -165,14 +165,14 @@
 <div each={warningMessages} class="containerH notConnected" style="background-color:Orange">
   <div class="containerV">
     <div if={message=='domaine' }>
-      Nous vous invitons à vous inscrire à au moins {data.minInscription.C} activité{data.minInscription.C>1?'s':''} du domaine {data.domaine.A}
+      Nous t'invitons à t'inscrire à au moins {data.minInscription.C} activité{data.minInscription.C>1?'s':''} du domaine {data.domaine.A}
     </div>
   </div>
 </div>
 <div each={blockingMessages} class="containerH notConnected" >
   <div class="containerV">
     <div if={message=='mandatory' }>
-      Vous devez obligatoirement répondre concernant votre présence à l'activité {data.formation.A} qui se déroule le {data.dateDisplay}
+      Tu dois obligatoirement indiquer ta présence ou absence à l'activité {data.formation.A} qui se déroule le {data.dateDisplay}
     </div>
 
   </div>
@@ -189,7 +189,7 @@
 <div class="containerH" style="justify-content:center" if={inscriptionDone}>
   <div style="flex-basis:60%;justify-content:center" class="containerH" onclick={persistSlots}>
     <div >
-      Votre inscription a bien été enregistrée avec les informations ci-dessus
+      Merci, ton inscription a bien été enregistrée avec les informations ci-dessus !
     </div>
   </div>
 </div>
@@ -212,7 +212,7 @@ this.months = [
   'Avril',
   'Mai',
   'Juin',
-  'Juillet',
+  'juillet',
   'août',
   'Septembre',
   'Octobre',
