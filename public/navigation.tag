@@ -226,7 +226,7 @@
 </div>
 </div>
 <script>
-this.email = "simon.louvet.zen@gmail.com";
+//this.email = "simon.louvet.zen@gmail.com";
 this.weekDays = [
   'dimanche',
   'lundi',
