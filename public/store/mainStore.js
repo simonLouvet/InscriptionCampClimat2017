@@ -91,15 +91,14 @@ function MainStore() {
         if (disallow == true) {
           slotToDisallow.causes.push(cause);
         } else if (disallow == false) {
-          console.log(slotToDisallow.causes.lastIndexOf(cause));
+          //console.log(slotToDisallow.causes.lastIndexOf(cause));
           var index = slotToDisallow.causes.lastIndexOf(cause)
           slotToDisallow.causes.splice(index, 1);
         }
       }
 
-      console.log(slotToDisallow.causes);
+      //console.log(slotToDisallow.causes);
 
-      //TODO faire sauter le if
       //if (slotToDisallow.booked != true) {
       if (slotToDisallow.causes.length == 0) {
         slotToDisallow.disallow = false;
@@ -230,6 +229,37 @@ function MainStore() {
       }
     }
   }
+
+  this.on('switch_cursus', function(curus, checked) {
+    //console.log('switch_cursus');
+    sift({
+      "curus.B": curus.A
+    }, this.slots).forEach(slot => {
+
+      if (checked == true) {
+        slot.cursusBindingCauses.push(curus.A);
+      } else if (checked == false) {
+        //console.log(slotToDisallow.causes.lastIndexOf(cause));
+        var index = slot.cursusBindingCauses.lastIndexOf(curus.A)
+        slot.cursusBindingCauses.splice(index, 1);
+      }
+      if(slot.cursusBindingCauses.length>0){
+        slot.curususBinding=true;
+        slot.cursusBindingCausesText="";
+        for(causes of slot.cursusBindingCauses){
+          if(slot.cursusBindingCausesText.length>0){
+            slot.cursusBindingCausesText+=', '
+          }
+          slot.cursusBindingCausesText+=causes;
+        }
+      }else{
+        slot.curususBinding=false;
+      }
+      console.log('switch_cursus',slot);
+    });
+    this.trigger('days_changed', this.restrictDate(this.days));
+
+  });
 
   this.on('switch_select', function(slot, checked) {
     sift({
@@ -366,7 +396,7 @@ function MainStore() {
     });
     var initialUserBooking = this.makeRequest("1aJXvBugaH0ejrPaKQcEX1YeEW8hCrM8ctEeuwqEPNJs#gid=2008365008", "select B,C,D,J,L", 0);
     Promise.all([initialUserBooking, oldUserRequest]).then(multiData => {
-      console.log(multiData);
+      //console.log(multiData);
       var userFinded = sift({
         D: email
       }, multiData[0].data);
@@ -468,7 +498,7 @@ function MainStore() {
             contentType: "application/json"
           }).done(function(data) {});
         });
-        if(this.oldUser!=undefined){
+        if (this.oldUser != undefined) {
           $.ajax({
             url: "https://api.mlab.com/api/1/databases/campclimat2017/collections/inscriptionpersonne/" + this.oldUser._id.$oid + "?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI",
             type: "DELETE",
@@ -532,13 +562,13 @@ function MainStore() {
     var dependenciesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=507094044", "select A,B", 0);
     var domainesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=1820632004", "select A,B,C", 0);
     var minInscriptionRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=108206282", "select A,B,C order by B asc", 0);
-    var cursusRequest=this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=1179905021", "select A,B", 0);
-    var cursusFormationRequest=this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=834841764", "select A,B", 0);
+    var cursusRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=1179905021", "select A,B", 1);
+    var cursusFormationRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=834841764", "select A,B", 0);
 
-    Promise.all([slotRequest, formationRequest, lieuRequest, bookingRequest, dependenciesRequest, domainesRequest, minInscriptionRequest,cursusRequest,cursusFormationRequest]).then(multiData => {
+    Promise.all([slotRequest, formationRequest, lieuRequest, bookingRequest, dependenciesRequest, domainesRequest, minInscriptionRequest, cursusRequest, cursusFormationRequest]).then(multiData => {
 
-      this.cursus = multiData[7];
-      this.trigger('cursus_changed',this.cursus);
+      this.cursus = multiData[7].data;
+      this.trigger('cursus_changed', this.cursus);
 
       this.domaines = multiData[5].data;
       this.domaines.forEach(domaine => {
@@ -572,9 +602,10 @@ function MainStore() {
         slot.sucessors = sift({
           B: slot.A
         }, multiData[4].data);
-        slot.curus=sift({
+        slot.curus = sift({
           A: slot.A
-        }, multiData[8].data)
+        }, multiData[8].data);
+        slot.cursusBindingCauses = [];
         //console.log(slot.dependances);
 
         id++;

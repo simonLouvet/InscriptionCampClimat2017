@@ -30,37 +30,53 @@
         </div>
       </div>
     </div>
+    <div class="containerH">
+      <div style="flex-basis:45%" class="containerV">
+        <div if={days!=undefined} class="containerH">
+          <div class="containerV">
+            <div>
+              <label>La date d'arrivée que tu as indiquée (tu peux la mettre à jour) :</label>
+            </div>
+            <div>
+              <input type="text" value={userConnected.dateDebutInputValue} name="dateDebut" id="dateDebut">
+            </div>
+          </div>
+        </div>
+        <div if={days!=undefined} class="containerH">
+          <div class="containerV">
+            <div >
+              <label>La date de départ que tu as indiquée (tu peux la mettre à jour) :</label>
+            </div>
+            <div>
+              <input type="text" value={userConnected.dateFinInputValue} name="dateFin" id="dateFin">
+            </div>
+          </div>
+        </div>
+        <div if={days!=undefined} class="containerH">
+          <div class="containerV">
+            <div>
+              <label>S'il y a des changements dans les informations que tu nous as données dans le premier formulaire, merci de nous les indiquer ici :</label>
+            </div>
+            <div>
+              <textarea style="width:100%" onchange={commentChange}>{userConnected.comment}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="flex-basis:45%;margin-left:50px" class="containerV" if={cursus!=undefined && days!=undefined}>
+        <div>
+          <span>Pour faciliter ton inscrition tu peux choisir un ou des cursus. Cela mettra en évidence les formations de ce ou ces cursus par le logo</span> <img width="20" height="20" src="./resources/target.png">
+        </div>
+        <div style="height:180px;flex-wrap: wrap;" class="containerV">
+          <div each={cursus} class="containerH">
+            <input type="checkbox" onchange={cursusClick}>
+            <span title={B} class="toolTip">{A}</span>
+          </div>
+        </div>
 
-    <div if={days!=undefined} class="containerH">
-      <div class="containerV">
-        <div>
-          <label>La date d'arrivée que tu as indiquée (tu peux la mettre à jour) :</label>
-        </div>
-        <div>
-          <input type="text" value={userConnected.dateDebutInputValue} name="dateDebut" id="dateDebut">
-        </div>
       </div>
     </div>
-    <div if={days!=undefined} class="containerH">
-      <div class="containerV">
-        <div >
-          <label>La date de départ que tu as indiquée (tu peux la mettre à jour) :</label>
-        </div>
-        <div>
-          <input type="text" value={userConnected.dateFinInputValue} name="dateFin" id="dateFin">
-        </div>
-      </div>
-    </div>
-    <div if={days!=undefined} class="containerH">
-      <div class="containerV">
-        <div>
-          <label>S'il y a des changements dans les informations que tu nous as données dans le premier formulaire, merci de nous les indiquer ici :</label>
-        </div>
-        <div>
-          <textarea style="width:100%" onchange={commentChange}>{userConnected.comment}</textarea>
-        </div>
-      </div>
-    </div>
+
   </div>
 
   <div class="booking containerH" style="flex-wrap: nowrap;height:480px;" if={days!=undefined}>
@@ -107,17 +123,25 @@
             </div>
           </div>
           <div class="containerH">
+            <div class="containerH" style="flex-basis:35px">
+              <img if={curususBinding==true} title={cursusBindingCausesText} class="toolTip" width="20" height="20" src="./resources/target.png">
+            </div>
             <div class="containerH moreInfo" onclick={moreInfoClick}>
               <img width="20" height="20" src="./resources/moreInfo.png">
               <span>plus d'infos</span>
             </div>
+            <div class="containerH" style="flex-basis:35px">
+              <img if={lieu.I==0} class="toolTip" width="20" height="20" src="./resources/noPMR.png">
+            </div>
+
             <div class="containerH" style="flex-basis:300px">
               <span>{G}</span>
             </div>
 
-            <div class="containerH" style="flex-basis:100px">
-              <span if={!full}>
-                {reservation} / {jauge}
+
+            <div class="containerH" style="flex-basis:150px">
+              <spanif={!full}>
+                jauge : {reservation} / {jauge}
               </span>
               <span if={full}>
                 COMPLET
@@ -135,7 +159,7 @@
           </div>
           <div class="containerH" if={mainSlots!=undefined && mainSlots.length>0}>
             <div>
-              Pour participer à cette formation, tu dois d'abord t'inscrire le :
+              Pour participer à cette formation, tu dois t'inscrire le :
             </div>
             <div each={mainSlots} class="colSpanRow">
               {weekDays[date.getDay()]} {date.getDate()} {months[date.getMonth()]} {D} à {E}
@@ -155,6 +179,9 @@
             <div>
               <span>descrition : {formation.F}</span>
             </div>
+            <div>
+              <span>niveau : {formation.G}</span>
+            </div>
           </div>
         </div>
 
@@ -162,19 +189,18 @@
     </div>
   </div>
 </div>
-<div each={warningMessages} class="containerH notConnected" style="background-color:Orange">
+<div each={warningMessages} class="containerH notConnected" style="background-color:Orange" if={days!=undefined}>
   <div class="containerV">
     <div if={message=='domaine' }>
       Nous t'invitons à t'inscrire à au moins {data.minInscription.C} activité{data.minInscription.C>1?'s':''} du domaine {data.domaine.A}
     </div>
   </div>
 </div>
-<div each={blockingMessages} class="containerH notConnected" >
+<div each={blockingMessages} class="containerH notConnected" if={days!=undefined}>
   <div class="containerV">
     <div if={message=='mandatory' }>
       Tu dois obligatoirement indiquer ta présence ou absence à l'activité {data.formation.A} qui se déroule le {data.dateDisplay}
     </div>
-
   </div>
 </div>
 
@@ -187,7 +213,7 @@
   </div>
 </div>
 <div class="containerH" style="justify-content:center" if={inscriptionDone}>
-  <div style="flex-basis:60%;justify-content:center" class="containerH" onclick={persistSlots}>
+  <div style="flex-basis:60%;justify-content:center" class="containerH">
     <div >
       Merci, ton inscription a bien été enregistrée avec les informations ci-dessus !
     </div>
@@ -195,7 +221,7 @@
 </div>
 </div>
 <script>
-//this.email = "simon.louvet.zen@gmail.com";
+this.email = "simon.louvet.zen@gmail.com";
 this.weekDays = [
   'dimanche',
   'lundi',
@@ -242,6 +268,7 @@ this.on('update', function () {
       $(".booking").tabs({active: 0});
     }
     */
+    $(".toolTip").tooltip();
 
     $("#dateDebut").datepicker({
       firstDay: 1,
@@ -414,11 +441,18 @@ RiotControl.on('user_connected', function (data) {
 
 RiotControl.on('user_not_connected', function (data) {
   this.notConnected = true;
+  this.days=undefined;
   this.update();
 }.bind(this))
 
 RiotControl.on('inscription_done', function (data) {
   this.inscriptionDone = true;
+  this.update();
+}.bind(this))
+
+RiotControl.on('cursus_changed', function (data) {
+  console.log('cursus_changed',data);
+  this.cursus = data;
   this.update();
 }.bind(this))
 
@@ -457,9 +491,15 @@ dayClick(e) {
   this.currentDay = e.item.date;
 }
 
+cursusClick(e){
+    RiotControl.trigger('switch_cursus', e.item, e.target.checked);
+}
+
 commentChange(e){
   RiotControl.trigger('comment_change', e.target.value);
 }
+
+
 </script>
 <style>
 .slots {
