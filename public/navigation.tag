@@ -1,37 +1,43 @@
 <navigation>
   <div class="containerV">
     <div class="containerH">
-      <div style="flex-basis:30%">
+      <div style="flex-basis:300px">
         <div>
           <label>Saisis l'adresse mail avec laquelle tu t'es inscrit-e au Camp Climat :</label>
         </div>
         <div>
-          <input type="texte" onchange={emailchange} style="width:100%">
+          <input type="texte" onchange={emailchange} onkeypress={emailEnter} style="width:100%">
         </div>
       </div>
-      <div style="justify-content:center;flex-basis:35%;" class="containerH" if={true}>
-        <div class="button containerV" onclick={mailValidation}>
+      <div style="justify-content:center;flex-basis:450px;" class="containerH" if={true}>
+        <div class="button containerV" style="justify-content:center;" onclick={mailValidation}>
           <div style="justify-content:center;" class="containerH">
-            vérifier que tu es bien inscrit-e au Camp Climat
+            <span>
+              vérifier que tu es bien inscrit-e au Camp Climat
+            </span>
           </div>
           <div style="justify-content:center;" class="containerH">
-            et commencer tes inscriptions aux activités
+            <span>
+              et commencer tes inscriptions aux activités
+            </span>
           </div>
         </div>
       </div>
-      <div if={notConnected} class=containerH style="flex-basis:30%;">
+      <div if={notConnected} class=containerH style="flex-basis:300px;">
         <div class="notConnected containerH" style="justify-content:center;">
+          <span>
           Aucune inscription au Camp Climat n'a été effectuée avec cette adresse mail ; tu ne peux donc pas t'inscrire aux activités, désolé !
+          <span>
         </div>
       </div>
-      <div if={userConnected!=undefined && userConnected.overwrite} class=containerH style="flex-basis:30%;">
+      <div if={userConnected!=undefined && userConnected.overwrite} class=containerH style="flex-basis:300px;">
         <div class="containerH" style="justify-content:center;">
           Tu as déjà renseigné ce formulaire, tes informations sont reprises ci-dessous. Tu peux les modifier et valider à nouveau.
         </div>
       </div>
     </div>
     <div class="containerH">
-      <div style="flex-basis:45%" class="containerV">
+      <div style="margin-right:50px;flex-basis:500px;" class="containerV">
         <div if={days!=undefined} class="containerH">
           <div class="containerV">
             <div>
@@ -63,9 +69,10 @@
           </div>
         </div>
       </div>
-      <div style="flex-basis:45%;margin-left:50px" class="containerV" if={cursus!=undefined && days!=undefined}>
+      <div style="flex-basis:600px;" class="containerV" if={cursus!=undefined && days!=undefined}>
         <div>
-          <span>Pour faciliter ton inscrition tu peux choisir un ou des cursus. Cela mettra en évidence les formations de ce ou ces cursus par le logo</span> <img width="20" height="20" src="./resources/target.png">
+          <span>Pour faciliter ton inscrition tu peux choisir un ou des cursus. Cela mettra en évidence les formations de ce ou ces cursus par le logo</span>
+          <img width="20" height="20" src="./resources/target.png">
         </div>
         <div style="height:180px;flex-wrap: wrap;" class="containerV">
           <div each={cursus} class="containerH">
@@ -138,7 +145,6 @@
               <span>{G}</span>
             </div>
 
-
             <div class="containerH" style="flex-basis:150px">
               <spanif={!full}>
                 jauge : {reservation} / {jauge}
@@ -203,7 +209,6 @@
     </div>
   </div>
 </div>
-
 
 <div class="containerH" style="justify-content:center" if={days!=undefined && !inscriptionDone && blockingMessages.length==0}>
   <div style="flex-basis:60%;justify-content:center" class="button containerH" onclick={persistSlots}>
@@ -441,7 +446,7 @@ RiotControl.on('user_connected', function (data) {
 
 RiotControl.on('user_not_connected', function (data) {
   this.notConnected = true;
-  this.days=undefined;
+  this.days = undefined;
   this.update();
 }.bind(this))
 
@@ -451,7 +456,7 @@ RiotControl.on('inscription_done', function (data) {
 }.bind(this))
 
 RiotControl.on('cursus_changed', function (data) {
-  console.log('cursus_changed',data);
+  console.log('cursus_changed', data);
   this.cursus = data;
   this.update();
 }.bind(this))
@@ -481,6 +486,13 @@ mailValidation(e) {
   RiotControl.trigger('email_change', this.email);
 }
 
+emailEnter(e) {
+  if (e.keyCode == 13) {
+    this.emailchange(e);
+    this.mailValidation();
+  }
+}
+
 moreInfoClick(e) {
   //console.log('ALLO');
   RiotControl.trigger('more_info', e.item);
@@ -491,21 +503,19 @@ dayClick(e) {
   this.currentDay = e.item.date;
 }
 
-cursusClick(e){
-    RiotControl.trigger('switch_cursus', e.item, e.target.checked);
+cursusClick(e) {
+  RiotControl.trigger('switch_cursus', e.item, e.target.checked);
 }
 
-commentChange(e){
+commentChange(e) {
   RiotControl.trigger('comment_change', e.target.value);
 }
-
-
 </script>
 <style>
 .slots {
   /*padding: 10px;*/
   display: table;
-  width:100%;
+  width: 100%;
 }
 .row {
   display: table-row;
