@@ -678,7 +678,7 @@ function MainStore() {
           //currentDay=days[days.length-1];
         }
       }
-      this.oldBookings = multiData[3];
+
       var bookingsForUser = sift({
         $and: [{
           email: this.user.D
@@ -688,6 +688,7 @@ function MainStore() {
           }
         }]
       }, multiData[3]);
+      this.oldBookings = bookingsForUser;
       if (bookingsForUser.length > 0) {
         this.user.overwrite = true;
       }
