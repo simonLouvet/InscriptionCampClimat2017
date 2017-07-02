@@ -149,7 +149,7 @@
                     jauge : {reservation} / {jauge}
                   </span>
                   <span if={full}>
-                    COMPLET ({reservation} / {jauge})
+                    COMPLET
                   </span>
                 </div>
               </div>

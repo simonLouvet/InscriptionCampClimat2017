@@ -409,7 +409,7 @@ function MainStore() {
 
         if (userFinded.length > 0) {
           this.user = userFinded[0];
-          this.user.D = this.user.D.toLowerCase();
+          this.user.D = this.user.D.toLowerCase().trim();
           if (this.oldUser != undefined) {
             this.user.dateDebut = new Date(this.oldUser.dateDebut);
           } else {
