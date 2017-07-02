@@ -71,7 +71,7 @@
           <div style="flex-basis:600px;" class="containerV" if={cursus!=undefined && days!=undefined}>
             <div>
               <span>Pour faciliter ton inscrition tu peux choisir un ou des cursus. Cela mettra en évidence les formations de ce ou ces cursus par le logo</span>
-              <img class="icon" src="./resources/target.png">
+              <img class="icon" src="{prodPath!=undefined?prodPath:'prodPath'}/resources/target.png">
             </div>
             <div style="height:180px;flex-wrap: wrap;" class="containerV">
               <div each={cursus} class="containerH">
@@ -130,14 +130,14 @@
               </div>
               <div class="containerH">
                 <div class="containerH" style="flex-basis:35px">
-                  <img if={curususBinding==true} title={cursusBindingCausesText} class="toolTip icon" src="./resources/target.png">
+                  <img if={curususBinding==true} title={cursusBindingCausesText} class="toolTip icon" src="{prodPath!=undefined?prodPath:'prodPath'}/resources/target.png">
                 </div>
                 <div class="containerH moreInfo" onclick={moreInfoClick}>
-                  <img class="icon" src="./resources/moreInfo.png">
+                  <img class="icon" src="{prodPath!=undefined?prodPath:'prodPath'}/resources/moreInfo.png">
                   <span>plus d'infos</span>
                 </div>
                 <div class="containerH" style="flex-basis:35px">
-                  <img if={lieu.I==0} class="icon"  src="./resources/noPMR.png">
+                  <img if={lieu.I==0} class="icon"  src="{prodPath!=undefined?prodPath:'prodPath'}/resources/noPMR.png">
                 </div>
 
                 <div class="containerH" style="flex-basis:300px">
@@ -212,12 +212,12 @@
     <div class="containerH" style="justify-content:center" if={days!=undefined && !inscriptionDone && blockingMessages.length==0}>
       <div style="flex-basis:60%;justify-content:center" if={!peristInProgress} class="button containerH" onclick={persistSlots}>
         <span>
-          valider
+          valider les inscription pour toutes les journées
         </span>
       </div>
       <div style="flex-basis:60%;justify-content:center" if={peristInProgress} class="button containerH" >
         <div>
-          <img class="icon" src="./resources/loader.gif">
+          <img class="icon" src="{prodPath!=undefined?prodPath:'prodPath'}/resources/loader.gif">
         </div>
       </div>
     </div>
@@ -230,6 +230,7 @@
     </div>
   </div>
   <script>
+    this.prodPath= 'http://campclimat.eu/wp-content/themes/twentyseventeen/inscription/public/';
     //this.email = "simon.louvet.zen@gmail.com";
     this.weekDays = [
       'dimanche',
@@ -608,6 +609,12 @@
     .icon {
       height : 20px;
       width: 20px;
+    }
+
+    .containerH>img{
+
+      padding: 0px;
+
     }
 
   </style>
