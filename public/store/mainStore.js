@@ -243,19 +243,19 @@ function MainStore() {
         var index = slot.cursusBindingCauses.lastIndexOf(curus.A)
         slot.cursusBindingCauses.splice(index, 1);
       }
-      if(slot.cursusBindingCauses.length>0){
-        slot.curususBinding=true;
-        slot.cursusBindingCausesText="";
-        for(causes of slot.cursusBindingCauses){
-          if(slot.cursusBindingCausesText.length>0){
-            slot.cursusBindingCausesText+=', '
+      if (slot.cursusBindingCauses.length > 0) {
+        slot.curususBinding = true;
+        slot.cursusBindingCausesText = "";
+        for (causes of slot.cursusBindingCauses) {
+          if (slot.cursusBindingCausesText.length > 0) {
+            slot.cursusBindingCausesText += ', '
           }
-          slot.cursusBindingCausesText+=causes;
+          slot.cursusBindingCausesText += causes;
         }
-      }else{
-        slot.curususBinding=false;
+      } else {
+        slot.curususBinding = false;
       }
-      console.log('switch_cursus',slot);
+      console.log('switch_cursus', slot);
     });
     this.trigger('days_changed', this.restrictDate(this.days));
 
@@ -389,46 +389,51 @@ function MainStore() {
 
 
   this.on('email_change', function(email) {
-    var oldUserRequest = this.makeRequestMlab('inscriptionpersonne', 'GET', {
-      q: {
-        D: email
-      }
-    });
-    var initialUserBooking = this.makeRequest("1aJXvBugaH0ejrPaKQcEX1YeEW8hCrM8ctEeuwqEPNJs#gid=2008365008", "select B,C,D,J,L", 0);
-    Promise.all([initialUserBooking, oldUserRequest]).then(multiData => {
-      //console.log(multiData);
-      var userFinded = sift({
-        D: email
-      }, multiData[0].data);
+    if (email != undefined) {
+      var oldUserRequest = this.makeRequestMlab('inscriptionpersonne', 'GET', {
+        q: {
+          D: email
+        }
+      });
+      var initialUserBooking = this.makeRequest("1aJXvBugaH0ejrPaKQcEX1YeEW8hCrM8ctEeuwqEPNJs#gid=2008365008", "select B,C,D,J,L where lower(D)='" + email.toLowerCase() + "'", 0);
+      Promise.all([initialUserBooking, oldUserRequest]).then(multiData => {
+        //console.log(multiData);
+        /*var userFinded = sift({
+          D: email
+        }, multiData[0].data);*/
+        console.log(multiData[0].data);
+        var userFinded = multiData[0].data;
 
-      this.oldUser = multiData[1][0];
 
-      if (userFinded.length > 0) {
-        this.user = userFinded[0];
-        if (this.oldUser != undefined) {
-          this.user.dateDebut = new Date(this.oldUser.dateDebut);
+        this.oldUser = multiData[1][0];
+
+        if (userFinded.length > 0) {
+          this.user = userFinded[0];
+          this.user.D = this.user.D.toLowerCase();
+          if (this.oldUser != undefined) {
+            this.user.dateDebut = new Date(this.oldUser.dateDebut);
+          } else {
+            this.user.dateDebut = eval('new ' + this.user.J);
+          }
+          this.user.dateDebutInputValue = ("0" + this.user.dateDebut.getDate()).slice(-2) + '/' + ("0" + (this.user.dateDebut.getMonth() + 1)).slice(-2) + '/' + this.user.dateDebut.getFullYear();
+          if (this.oldUser != undefined) {
+            this.user.dateFin = new Date(this.oldUser.dateFin);
+          } else {
+            this.user.dateFin = eval('new ' + this.user.L);
+          }
+          if (this.oldUser != undefined) {
+            this.user.comment = this.oldUser.comment;
+          }
+
+          this.user.dateFinInputValue = ("0" + this.user.dateFin.getDate()).slice(-2) + '/' + ("0" + (this.user.dateFin.getMonth() + 1)).slice(-2) + '/' + this.user.dateFin.getFullYear();
+          console.log(this.user);
+          this.trigger('user_connected', this.user);
+          this.trigger('slots_init');
         } else {
-          this.user.dateDebut = eval('new ' + this.user.J);
+          this.trigger('user_not_connected');
         }
-        this.user.dateDebutInputValue = ("0" + this.user.dateDebut.getDate()).slice(-2) + '/' + ("0" + (this.user.dateDebut.getMonth() + 1)).slice(-2) + '/' + this.user.dateDebut.getFullYear();
-        if (this.oldUser != undefined) {
-          this.user.dateFin = new Date(this.oldUser.dateFin);
-        } else {
-          this.user.dateFin = eval('new ' + this.user.L);
-        }
-        if (this.oldUser != undefined) {
-          this.user.comment = this.oldUser.comment;
-        }
-
-        this.user.dateFinInputValue = ("0" + this.user.dateFin.getDate()).slice(-2) + '/' + ("0" + (this.user.dateFin.getMonth() + 1)).slice(-2) + '/' + this.user.dateFin.getFullYear();
-        console.log(this.user);
-        this.trigger('user_connected', this.user);
-        this.trigger('slots_init');
-      } else {
-        this.trigger('user_not_connected');
-      }
-    });
-
+      });
+    }
   });
 
   this.on('dateDebut_change', function(date, str) {
@@ -449,6 +454,7 @@ function MainStore() {
 
   this.on('persist_slots', function() {
     var exportData = [];
+    var horodateur = new Date();
     sift({
       $or: [{
           checked: {
@@ -461,7 +467,7 @@ function MainStore() {
       ]
     }, this.slots).forEach(slot => {
       exportData.push({
-        horadateur: new Date(),
+        horadateur: horodateur,
         checked: slot.checked,
         booked: slot.booked,
         email: this.user.D,
@@ -474,7 +480,7 @@ function MainStore() {
       });
     });
 
-    this.user.horadateur = new Date();
+    this.user.horadateur = horodateur;
 
 
 
@@ -556,7 +562,7 @@ function MainStore() {
 
   this.on('slots_init', function() {
     var slotRequest = this.makeRequest("11iOoq00Hy8vMHDksubOUUDXvgf5YD1qz_-cUJlWDScE#gid=1048305501", "select A,B,C,D,E,F,G,L,H,I,J,K,M,N order by C asc, H asc", 0);
-    var formationRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=0", "select A,B,C,D,E,F,G,H,I,J,K,L,M,O,P,Q", 0);
+    var formationRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=0", "select A,F,G", 0);
     var lieuRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=453023377", "select A,F,I", 0);
     var bookingRequest = this.makeRequestMlab('inscriptionplage', 'GET');
     var dependenciesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=507094044", "select A,B", 0);
@@ -647,7 +653,12 @@ function MainStore() {
         //console.log(slot);
         slot.jauge = Math.min(slot.N, slot.lieu.F);
         slot.reservation = sift({
-          session: slot.B
+
+          $and: [{
+            checked: true
+          }, {
+            session: slot.B
+          }]
         }, multiData[3]).length;
         if (slot.reservation >= slot.jauge) {
           slot.disallow = true;
@@ -682,17 +693,17 @@ function MainStore() {
       var bookingsForUser = sift({
         $and: [{
           email: this.user.D
-        }, {
-          checked: {
-            $exists: true
-          }
         }]
       }, multiData[3]);
       this.oldBookings = bookingsForUser;
       if (bookingsForUser.length > 0) {
         this.user.overwrite = true;
       }
-      bookingsForUser.forEach(booking => {
+      sift({
+        checked: {
+          $exists: true
+        }
+      },bookingsForUser).forEach(booking => {
         var slot = sift({
           $and: [{
             mainSlots: {
