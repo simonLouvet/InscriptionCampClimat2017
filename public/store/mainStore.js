@@ -122,6 +122,9 @@ function MainStore() {
             // },
             {
               date: slotToDisallow.date
+            },
+            {
+              full: false
             }, {
               $or: [{
                 $and: [{
@@ -200,28 +203,32 @@ function MainStore() {
         if (slotToDisallow.sucessors != undefined && slotToDisallow.sucessors.length > 0) {
           //TODO ajouter la contreinte des suivants
           var sucessorsSlots = sift({
-            'dependencies.B': slotToDisallow.A
+            'dependencies.B': slotToDisallow.A,
+            timeDebut :{$gte:slotToDisallow.timeFin}
           }, this.slots);
           sucessorsSlots.forEach(sucessor => {
             //console.log('sucessor',sucessor);
-            if (booked == true) {
-              var impact = true;
-              sucessor.dependencies.forEach(dependency => {
-                //TODO ajouter la contrainte les précedents
-                var dependenciesSlots = sift({
-                  A: dependency.B,
-                  booked: true
-                }, this.slots)
-                if (dependenciesSlots.length == 0) {
-                  impact = false;
-                  //break;
+            if (sucessor.full == false) {
+              if (booked == true) {
+                var impact = true;
+                sucessor.dependencies.forEach(dependency => {
+                  //TODO ajouter la contrainte les précedents
+                  var dependenciesSlots = sift({
+                    A: dependency.B,
+                    booked: true,
+                    timeFin:{$lte:dependency.timeDebut}
+                  }, this.slots)
+                  if (dependenciesSlots.length == 0) {
+                    impact = false;
+                    //break;
+                  }
+                });
+                if (impact == true) {
+                  this.disAllowSameTime(sucessor, undefined, false, depth + 1, 'sucessors')
                 }
-              });
-              if (impact == true) {
-                this.disAllowSameTime(sucessor, undefined, false, depth + 1, 'sucessors')
+              } else {
+                this.disAllowSameTime(sucessor, false, true, depth + 1, 'sucessors')
               }
-            } else {
-              this.disAllowSameTime(sucessor, false, true, depth + 1, 'sucessors')
             }
 
           })
@@ -564,7 +571,9 @@ function MainStore() {
     var slotRequest = this.makeRequest("11iOoq00Hy8vMHDksubOUUDXvgf5YD1qz_-cUJlWDScE#gid=1048305501", "select A,B,C,D,E,F,G,L,H,I,J,K,M,N order by C asc, H asc", 0);
     var formationRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=0", "select A,F,G", 0);
     var lieuRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=453023377", "select A,F,I", 0);
-    var bookingRequest = this.makeRequestMlab('inscriptionplage', 'GET',{l:20000});
+    var bookingRequest = this.makeRequestMlab('inscriptionplage', 'GET', {
+      l: 20000
+    });
     var dependenciesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=507094044", "select A,B", 0);
     var domainesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=1820632004", "select A,B,C", 0);
     var minInscriptionRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=108206282", "select A,B,C order by B asc", 0);
@@ -691,19 +700,19 @@ function MainStore() {
       }
 
       var bookingsForUser = sift({
-          email: this.user.D
+        email: this.user.D
       }, multiData[3]);
       this.oldBookings = bookingsForUser;
       if (bookingsForUser.length > 0) {
         this.user.overwrite = true;
       }
-      console.log('bookingsForUser',bookingsForUser);
-      var bookingsForUserBinding =  sift({
+      console.log('bookingsForUser', bookingsForUser);
+      var bookingsForUserBinding = sift({
         checked: {
           $exists: true
         }
-      },bookingsForUser);
-      console.log('bookingsForUserBinding',bookingsForUserBinding);
+      }, bookingsForUser);
+      console.log('bookingsForUserBinding', bookingsForUserBinding);
       bookingsForUserBinding.forEach(booking => {
         var slot = sift({
           $and: [{

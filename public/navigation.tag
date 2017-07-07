@@ -144,7 +144,7 @@
                   <span>{G}</span>
                 </div>
 
-                <div class="containerH" style="flex-basis:150px">
+                <div class="containerH" style="flex-basis:180px">
                   <span if={!full}>
                     jauge : {reservation} / {jauge}
                   </span>
