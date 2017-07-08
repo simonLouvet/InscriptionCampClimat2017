@@ -124,7 +124,9 @@ function MainStore() {
               date: slotToDisallow.date
             },
             {
-              full: false
+              full: {
+                $ne: true
+              }
             }, {
               $or: [{
                 $and: [{
@@ -204,7 +206,9 @@ function MainStore() {
           //TODO ajouter la contreinte des suivants
           var sucessorsSlots = sift({
             'dependencies.B': slotToDisallow.A,
-            timeDebut :{$gte:slotToDisallow.timeFin}
+            timeDebut: {
+              $gte: slotToDisallow.timeFin
+            }
           }, this.slots);
           sucessorsSlots.forEach(sucessor => {
             //console.log('sucessor',sucessor);
@@ -216,7 +220,9 @@ function MainStore() {
                   var dependenciesSlots = sift({
                     A: dependency.B,
                     booked: true,
-                    timeFin:{$lte:dependency.timeDebut}
+                    timeFin: {
+                      $lte: dependency.timeDebut
+                    }
                   }, this.slots)
                   if (dependenciesSlots.length == 0) {
                     impact = false;
@@ -288,7 +294,7 @@ function MainStore() {
     this.warningMessages = [];
     this.blockingMessages = [];
 
-    console.log(this.domaines);
+    //console.log(this.domaines);
 
     this.domaines.forEach(domaine => {
       var minBookslots = sift({
@@ -301,7 +307,7 @@ function MainStore() {
       //if (domaine.C > 0) {
       //var nbDay = (this.user.dateFin - this.user.dateDebut) / (60 * 60 * 24 * 1000);
       var nbDay = this.resctrictDays.length;
-      console.log(nbDay, domaine.minInscriptions);
+      //console.log(nbDay, domaine.minInscriptions);
       if (domaine.minInscriptions.length > 0) {
         minInscriptions = sift({
           $and: [{
@@ -322,7 +328,7 @@ function MainStore() {
             }
           ]
         }, domaine.minInscriptions);
-        console.log(domaine, minInscriptions, minBookslots.length);
+        //console.log(domaine, minInscriptions, minBookslots.length);
         if (minInscriptions[0] != undefined && minInscriptions[0].C > minBookslots.length) {
           this.warningMessages.push({
             message: 'domaine',
@@ -572,7 +578,16 @@ function MainStore() {
     var formationRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=0", "select A,F,G", 0);
     var lieuRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=453023377", "select A,F,I", 0);
     var bookingRequest = this.makeRequestMlab('inscriptionplage', 'GET', {
-      l: 20000
+      l: 20000,
+      s: {
+        checked: 1
+      },
+      f: {
+        checked: 1,
+        session: 1,
+        email: 1,
+        _id: 0
+      }
     });
     var dependenciesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=507094044", "select A,B", 0);
     var domainesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=1820632004", "select A,B,C", 0);
@@ -724,7 +739,10 @@ function MainStore() {
           }]
         }, this.slots);
         if (slot.length > 0) {
-          this.trigger('switch_select', slot[0], booking.checked);
+          slot[0].checked = booking.checked;
+          //slot.booked = checked;
+          this.disAllowSameTime(slot[0], booking.checked, undefined, 0, 'checked')
+          //this.trigger('switch_select', slot[0], booking.checked);
         }
 
       });
