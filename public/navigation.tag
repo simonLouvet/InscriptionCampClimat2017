@@ -187,6 +187,9 @@
                 <div>
                   <span>niveau : {formation.G}</span>
                 </div>
+                <div if={oldId!=undefined}>
+                    ref : {oldId}
+                </div>
               </div>
             </div>
 

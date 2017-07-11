@@ -110,7 +110,7 @@ function MainStore() {
 
       if (booked != undefined) {
         slotToDisallow.booked = booked;
-        console.log('sametime check');
+        //console.log('sametime check');
         sift({
           $and: [{
               id: {
@@ -213,28 +213,43 @@ function MainStore() {
           sucessorsSlots.forEach(sucessor => {
             //console.log('sucessor',sucessor);
             if (sucessor.full == false) {
-              if (booked == true) {
-                var impact = true;
+
+              // if (booked == true) {
+                var dependeciesOk = true;
                 sucessor.dependencies.forEach(dependency => {
                   //TODO ajouter la contrainte les précedents
+                  // console.log(dependency);
+                  // sift({
+                  //   A: dependency.B,
+                  //   booked: true
+                  // }, this.slots).forEach(d=>{
+                  //   console.log(d.timeFin);
+                  // });
+
                   var dependenciesSlots = sift({
                     A: dependency.B,
                     booked: true,
                     timeFin: {
-                      $lte: dependency.timeDebut
+                      $lte: sucessor.timeDebut
                     }
-                  }, this.slots)
+                  }, this.slots);
+                  console.log(dependenciesSlots);
                   if (dependenciesSlots.length == 0) {
-                    impact = false;
+                    dependeciesOk = false;
                     //break;
                   }
                 });
-                if (impact == true) {
-                  this.disAllowSameTime(sucessor, undefined, false, depth + 1, 'sucessors')
+                // if (impact == true) {
+                var everDisallowForSucessors = sucessor.causes.lastIndexOf('sucessors')!=-1;
+                console.log('sucessors change',sucessor,dependeciesOk,everDisallowForSucessors);
+                if(everDisallowForSucessors==dependeciesOk){
+
+                  this.disAllowSameTime(sucessor, undefined, !dependeciesOk, depth + 1, 'sucessors')
                 }
-              } else {
-                this.disAllowSameTime(sucessor, false, true, depth + 1, 'sucessors')
-              }
+                // }
+              // } else {
+              //   this.disAllowSameTime(sucessor, false, true, depth + 1, 'sucessors')
+              // }
             }
 
           })
@@ -586,7 +601,7 @@ function MainStore() {
         checked: 1,
         session: 1,
         email: 1,
-        _id: 0
+        _id: 1
       }
     });
     var dependenciesRequest = this.makeRequest("1cXMAFbMIAFDkT_hLN0DcfPAzww41d_xzyGziy5UzrfE#gid=507094044", "select A,B", 0);
@@ -651,8 +666,8 @@ function MainStore() {
         slot.dateDisplay = ("0" + slot.date.getDate()).slice(-2) + '/' + ("0" + (slot.date.getMonth() + 1)).slice(-2) + '/' + slot.date.getFullYear();
         slot.dayTimeDebut = slot.H * 60 + slot.I;
         slot.dayTimeFin = slot.J * 60 + slot.K;
-        slot.timeDebut = slot.date.getTime() + (slot.dayTimeDebut * 60);
-        slot.timeFin = slot.date.getTime() + (slot.dayTimeFin * 60);
+        slot.timeDebut = slot.date.getTime() + (slot.dayTimeDebut * 60*1000);
+        slot.timeFin = slot.date.getTime() + (slot.dayTimeFin * 60*1000);
         slot.disallow = false;
         if (slot.dependencies.length > 0) {
           slot.disallow = true;
@@ -740,6 +755,7 @@ function MainStore() {
         }, this.slots);
         if (slot.length > 0) {
           slot[0].checked = booking.checked;
+          slot[0].oldId=booking._id.$oid;
           //slot.booked = checked;
           this.disAllowSameTime(slot[0], booking.checked, undefined, 0, 'checked')
           //this.trigger('switch_select', slot[0], booking.checked);
