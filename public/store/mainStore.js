@@ -434,6 +434,7 @@ function MainStore() {
 
 
         this.oldUser = multiData[1][0];
+        this.oldUserRecords = multiData[1];
 
         if (userFinded.length > 0) {
           this.user = userFinded[0];
@@ -532,13 +533,20 @@ function MainStore() {
             contentType: "application/json"
           }).done(function(data) {});
         });
-        if (this.oldUser != undefined) {
+        this.oldUserRecords.forEach(oldUserRecord=>{
           $.ajax({
-            url: "https://api.mlab.com/api/1/databases/campclimat2017/collections/inscriptionpersonne/" + this.oldUser._id.$oid + "?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI",
+            url: "https://api.mlab.com/api/1/databases/campclimat2017/collections/inscriptionpersonne/" + oldUserRecord._id.$oid + "?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI",
             type: "DELETE",
             contentType: "application/json"
           }).done(function(data) {});
-        }
+        });
+        // if (this.oldUser != undefined) {
+        //   $.ajax({
+        //     url: "https://api.mlab.com/api/1/databases/campclimat2017/collections/inscriptionpersonne/" + this.oldUser._id.$oid + "?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI",
+        //     type: "DELETE",
+        //     contentType: "application/json"
+        //   }).done(function(data) {});
+        // }
 
         this.trigger('inscription_done');
       }.bind(this));
