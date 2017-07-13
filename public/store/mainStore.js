@@ -762,7 +762,7 @@ function MainStore() {
         }
 
       });
-      console.log(this.days);
+      //console.log(this.days);
       this.trigger('days_changed', this.restrictDate(this.days));
       this.checkForMessage();
     });

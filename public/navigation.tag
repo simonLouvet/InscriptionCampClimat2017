@@ -1,5 +1,6 @@
 <navigation>
   <div class="containerV">
+
     <div class="containerH">
       <div style="flex-basis:300px">
         <div>
@@ -433,7 +434,7 @@
     RiotControl.on('days_changed', function (data) {
       console.log(data);
       this.days = data;
-      if (this.currentDay == undefined && data.legth>0) {
+      if (this.currentDay == undefined && data.length>0) {
         this.currentDay = data[0].date;
       }
       this.update();
@@ -445,6 +446,7 @@
       this.blockingMessages = blockingMessages;
       this.update();
     }.bind(this));
+
 
     RiotControl.on('user_connected', function (data) {
       this.notConnected = false;
@@ -559,6 +561,7 @@
       border-width: 5px;
       border-radius: 5px;
     }
+
     .button:hover {
       border-color: DarkGreen;
       background-color: DarkGreen;
